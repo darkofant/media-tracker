@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model MediaEntry {
+  id              String    @id @default(cuid())
+  title           String
+  type            String
+  status          String
+  rating          Int?
+  description     String?
+  notes           String?
+  coverUrl        String?
+  watchedAt       DateTime?
+  platform        String?
+  playtimeMinutes Int?
+  season          Int?
+  episode         Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
