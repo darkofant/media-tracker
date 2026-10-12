@@ -6,10 +6,14 @@ Eine Basis für eine Medien-Tracking-App mit Fokus auf MVP und einfacher Weitere
 
 - Drei Medientypen: Serien, Filme, Spiele
 - Status pro Eintrag: geplant, gesehen/nicht abgeschlossen, abgeschlossen, abgebrochen
-- Bewertung und Notiz: 1–10 Punkte plus Freitext
+- Filme gelten nach dem Markieren als gesehen als abgeschlossen
+- Serienfortschritt wird über einzelne TMDB-Folgen erfasst und bei vollständigem Fortschritt automatisch abgeschlossen
+- Bewertung und Notiz: 1–5 Sterne plus Freitext
 - Datum: wann gesehen oder gespielt
-- Serien: Fortschritt nach Staffel und Folge
-- Spiele: Plattform und optional Spielzeit
+- Serien: Staffeln und Folgen aus TMDB mit einzelnem Fortschritt
+- Filme und Serien: Streaminganbieter oder Kino; Spiele: Steam, PlayStation, Xbox oder Nintendo Switch
+- Spiele: Plattform und optionale Spielzeit in Stunden (Dezimalkomma)
+- IMDb-Bewertungen für Filme und Serienfolgen (OMDb API)
 - Suche und Filter in der eigenen Liste
 
 Später lassen sich Statistiken, Import/Export, Listen und Social-Features ergänzen.
@@ -57,14 +61,22 @@ Danach ist die App unter http://localhost:3000 erreichbar.
 - Detailseiten pro Titel
 - Bearbeiten und Löschen
 - Statistiken
-- Import-Suche für TMDB/RAWG (mit API-Keys in .env)
+- Import-Suche für TMDB/RAWG (mit API-Keys in .env); bei Serien und Spielen wird eine eindeutig verfügbare Plattform vorausgewählt (TMDB: Deutschland, RAWG-PC: Steam)
 
 ## Umgebungsvariablen
 
-Kopiere .env.example nach .env und ergänze bei Bedarf API-Keys:
+Kopiere `.env.example` nach `.env`. API-Schlüssel können dort gesetzt oder über die Einstellungsseite in der App verwaltet werden. In der Datenbank gespeicherte Schlüssel werden mit AES-256-GCM verschlüsselt. Erzeuge dafür einmal einen Verschlüsselungsschlüssel:
+
+```powershell
+node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"
+```
+
+Trage den ausgegebenen Wert in `.env` als `SETTINGS_ENCRYPTION_KEY="..."` ein und starte die App neu. Bewahre diesen Schlüssel sicher auf: Ohne ihn können Datenbank-Schlüssel nicht entschlüsselt werden.
 
 - TMDB_API_KEY
 - RAWG_API_KEY
+- OMDB_API_KEY (für IMDb-Bewertungen)
+- SETTINGS_ENCRYPTION_KEY (für verschlüsselte API-Schlüssel in den Einstellungen)
 
 ## Nächste Schritte
 

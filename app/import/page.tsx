@@ -1,20 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
+import { PlatformBadge } from "@/components/PlatformBadge";
 import styles from "@/app/page.module.css";
 
 export default function ImportPage() {
+  const router = useRouter();
   const [provider, setProvider] = useState("tmdb");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<
     Array<{
       id: number;
+      tmdbId?: number | null;
       title: string;
       type: string;
       description: string;
       coverUrl?: string;
       releaseDate?: string;
+      platform?: string | null;
     }>
   >([]);
   const [loading, setLoading] = useState(false);
@@ -43,9 +49,9 @@ export default function ImportPage() {
     <main className={styles.formShell}>
       <div className={styles.formHeader}>
         <h1>Medien importieren</h1>
-        <a href="/" className={styles.secondaryButton}>
+        <Link href="/" className={styles.secondaryButton}>
           Zurück zur Liste
-        </a>
+        </Link>
       </div>
 
       <div className={styles.formCard}>
@@ -88,9 +94,12 @@ export default function ImportPage() {
 
               <div className={styles.entryHeader}>
                 <span className={styles.typeBadge}>{result.type === "GAME" ? "Spiel" : result.type === "SERIES" ? "Serie" : "Film"}</span>
+                {result.platform ? <PlatformBadge platform={result.platform} /> : null}
               </div>
               <h3>{result.title}</h3>
-              <p className={styles.notes}>{result.description || "Keine Beschreibung verfügbar."}</p>
+              <p className={`${styles.notes} ${styles.cardDescription}`}>
+                {result.description || "Keine Beschreibung verfügbar."}
+              </p>
               <div className={styles.entryFooter}>
                 <span>{result.releaseDate || "Datum unbekannt"}</span>
                 <button
@@ -103,7 +112,11 @@ export default function ImportPage() {
                       body: JSON.stringify({
                         title: result.title,
                         type: result.type,
-                        status: result.type === "GAME" ? "PLANNED" : "WATCHING",
+                        status: "PLANNED",
+                        ...(result.type !== "GAME" && result.tmdbId !== undefined && {
+                          tmdbId: result.tmdbId,
+                        }),
+                        ...(result.platform && { platform: result.platform }),
                         description: result.description,
                         notes: "",
                         coverUrl: result.coverUrl ?? "",
@@ -112,7 +125,8 @@ export default function ImportPage() {
                     });
 
                     if (response.ok) {
-                      window.location.href = "/";
+                      router.push("/");
+                      router.refresh();
                     }
                   }}
                 >

@@ -35,6 +35,17 @@
   flex-wrap: wrap;
 }
 
+.heroActions {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.heroActions .primaryButton,
+.heroActions .secondaryButton {
+  padding-right: 0.9rem;
+  padding-left: 0.9rem;
+}
+
 .primaryButton,
 .secondaryButton {
   display: inline-flex;
@@ -102,6 +113,297 @@
   padding: 24px;
 }
 
+.quickEditSection {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.quickEditSection h2 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+}
+
+.quickEditForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quickEditFields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.starRating {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.starRating legend {
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475467;
+}
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ratingStars .ratingStar {
+  display: inline-block;
+  color: #d0d5dd;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ratingStars .ratingStarSelected {
+  color: #f59e0b;
+}
+
+.ratingStars input:focus-visible + .ratingStar {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.ratingStars label:hover {
+  transform: scale(1.15);
+}
+
+.ratingDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.ratingDisplay > span:first-child {
+  color: #f59e0b;
+  letter-spacing: 0.04em;
+}
+
+.ratingClearButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #667085;
+  cursor: pointer;
+}
+
+.ratingClearButton svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.ratingClearButton:hover:not(:disabled) {
+  background: #f2f4f7;
+  color: #344054;
+}
+
+.ratingClearButton:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.ratingClearButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.quickEditActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quickEditActions span[role="status"] {
+  color: #166534;
+  font-size: 0.9rem;
+}
+
+.quickEditStatus {
+  color: #344054;
+  line-height: 1.5;
+}
+
+.seriesTracker {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.seriesTracker h2 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+}
+
+.seriesTracker p {
+  margin: 0 0 14px;
+  color: #475467;
+}
+
+.seriesSearchForm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.seriesSearchForm input {
+  min-width: 0;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+}
+
+.seriesSearchResults {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.seriesSearchResults li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.episodeProgress {
+  font-weight: 700;
+}
+
+.seriesSeason {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  margin-top: 12px;
+  background: #fff;
+}
+
+.seriesSeason summary {
+  padding: 14px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.episodeList {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 16px;
+}
+
+.episodeList li {
+  border-top: 1px solid #f0f2f5;
+}
+
+.episodeList label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  cursor: pointer;
+}
+
+.episodeTitle {
+  flex: 1;
+}
+
+.imdbRatingBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 2.6rem;
+  min-height: 1.6rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.imdbRatingAwesome {
+  background: #0b7046;
+  color: #fff;
+}
+
+.imdbRatingGreat {
+  background: #27b36b;
+  color: #102b1d;
+}
+
+.imdbRatingGood {
+  background: #f5d33d;
+  color: #30270b;
+}
+
+.imdbRatingRegular {
+  background: #f5a00b;
+  color: #352100;
+}
+
+.imdbRatingBad {
+  background: #ed5147;
+  color: #fff;
+}
+
+.imdbRatingGarbage {
+  background: #74417d;
+  color: #fff;
+}
+
+.imdbRatingUnrated {
+  background: #e5e7eb;
+  color: #475467;
+}
+
+.episodeList input {
+  margin-top: 4px;
+  accent-color: #7c3aed;
+}
+
 .filterPanel {
   margin-bottom: 28px;
 }
@@ -134,6 +436,106 @@
   background: #fff;
   padding: 0.8rem 0.9rem;
   font: inherit;
+}
+
+.platformSelectWrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.platformSelectWrap select {
+  flex: 1 1 12rem;
+  min-width: 0;
+  width: auto;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+}
+
+.platformBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #344054;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.platformMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.2rem;
+  border-radius: 6px;
+  background: #344054;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.cinemaMark {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.platformBadge[title="Netflix"] .platformMark {
+  background: #e50914;
+}
+
+.platformBadge[title="Prime Video"] .platformMark {
+  background: #00a8e0;
+}
+
+.platformBadge[title="Disney+"] .platformMark {
+  background: #113ccf;
+}
+
+.platformBadge[title="Apple TV+"] .platformMark {
+  background: #111827;
+}
+
+.platformBadge[title="Sky"] .platformMark {
+  background: #0072c9;
+}
+
+.platformBadge[title="Max"] .platformMark {
+  background: #5829d6;
+}
+
+.platformBadge[title="YouTube"] .platformMark {
+  background: #e62117;
+}
+
+.platformBadge[title="Kino"] .platformMark {
+  background: #475467;
+}
+
+.platformBadge[title="Steam"] .platformMark {
+  background: #171a21;
+}
+
+.platformBadge[title="PlayStation"] .platformMark {
+  background: #003791;
+}
+
+.platformBadge[title="Xbox"] .platformMark {
+  background: #107c10;
+}
+
+.platformBadge[title="Nintendo Switch"] .platformMark {
+  background: #e60012;
 }
 
 .fieldGroup textarea {
@@ -176,6 +578,12 @@
 .sectionHeader span {
   color: #667085;
   font-size: 0.9rem;
+}
+
+.sectionHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .entryGrid {
@@ -277,6 +685,13 @@
   min-height: 3.2em;
 }
 
+.cardDescription {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 .entryFooter {
   display: flex;
   align-items: center;
@@ -287,6 +702,75 @@
   border-top: 1px solid #f0f2f5;
   color: #344054;
   font-size: 0.82rem;
+}
+
+.settingsContent {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.settingsNotice {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid #fedf89;
+  border-radius: 12px;
+  background: #fffaeb;
+  color: #7a2e0e;
+}
+
+.settingsNotice p {
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.settingsProvider {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid #eaecf0;
+}
+
+.settingsProvider h2 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.settingsProvider p {
+  margin: 0 0 4px;
+  color: #475467;
+}
+
+.settingsProvider > div > span {
+  color: #667085;
+  font-size: 0.85rem;
+}
+
+.settingsKeyField {
+  display: grid;
+  gap: 8px;
+  color: #344054;
+  font-weight: 600;
+}
+
+.settingsKeyField input {
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+}
+
+.successMessage {
+  margin: 0;
+  color: #067647;
+}
+
+.cardRatingGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .formShell,
@@ -309,6 +793,90 @@
 .detailHeader h1 {
   margin: 0;
   font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.detailTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.detailTitle h1 {
+  overflow-wrap: anywhere;
+}
+
+.iconButton {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.iconButton svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.iconButton:hover {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.primaryIconButton {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+.primaryIconButton:hover {
+  border-color: #344054;
+  background: #344054;
+  color: #fff;
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}
+
+.deleteEntryAction {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eef2f7;
+}
+
+.deleteEntryAction form {
+  margin: 0;
+}
+
+.deleteIconButton {
+  border-color: #fecaca;
+  color: #b42318;
+}
+
+.deleteIconButton:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b42318;
 }
 
 .formGrid {
@@ -352,7 +920,12 @@
 
   .summaryGrid,
   .filterForm,
-  .formGrid {
+  .formGrid,
+  .quickEditFields {
+    grid-template-columns: 1fr;
+  }
+
+  .seriesSearchForm {
     grid-template-columns: 1fr;
   }
 }

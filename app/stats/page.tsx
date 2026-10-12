@@ -7,8 +7,10 @@ export default async function StatsPage() {
   const entries = await prisma.mediaEntry.findMany();
 
   const total = entries.length;
-  const completed = entries.filter((entry) => entry.status === "COMPLETED").length;
-  const inProgress = entries.filter((entry) => entry.status === "WATCHING").length;
+  const completed = entries.filter(
+    (entry) => entry.status === "COMPLETED" || (entry.type === "MOVIE" && entry.status === "WATCHING"),
+  ).length;
+  const inProgress = entries.filter((entry) => entry.status === "WATCHING" && entry.type !== "MOVIE").length;
   const ratedEntries = entries.filter((entry) => entry.rating !== null);
   const avgRating =
     ratedEntries.reduce((sum, entry) => sum + (entry.rating ?? 0), 0) / Math.max(ratedEntries.length, 1);
@@ -18,7 +20,14 @@ export default async function StatsPage() {
   );
 
   const statusCounts = Object.fromEntries(
-    ["PLANNED", "WATCHING", "COMPLETED", "ABANDONED"].map((status) => [status, entries.filter((entry) => entry.status === status).length]),
+    ["PLANNED", "WATCHING", "COMPLETED", "ABANDONED"].map((status) => [
+      status,
+      entries.filter(
+        (entry) =>
+          (status === "COMPLETED" && entry.type === "MOVIE" && entry.status === "WATCHING") ||
+          (entry.status === status && !(status === "WATCHING" && entry.type === "MOVIE")),
+      ).length,
+    ]),
   );
 
   return (
@@ -44,7 +53,7 @@ export default async function StatsPage() {
         <article className={styles.summaryCard}>
           <span className={styles.summaryLabel}>Ø Bewertung</span>
           <strong>{avgRating.toFixed(1)}</strong>
-          <small>von 10</small>
+          <small>von 5 Sternen</small>
         </article>
       </section>
 
@@ -62,7 +71,7 @@ export default async function StatsPage() {
           <h2>Nach Status</h2>
           <ul className={styles.detailList}>
             <li><strong>Geplant</strong><span>{statusCounts.PLANNED ?? 0}</span></li>
-            <li><strong>Gesehen, nicht abgeschlossen</strong><span>{statusCounts.WATCHING ?? 0}</span></li>
+            <li><strong>In Bearbeitung</strong><span>{statusCounts.WATCHING ?? 0}</span></li>
             <li><strong>Abgeschlossen</strong><span>{statusCounts.COMPLETED ?? 0}</span></li>
             <li><strong>Abgebrochen</strong><span>{statusCounts.ABANDONED ?? 0}</span></li>
           </ul>
@@ -72,7 +81,7 @@ export default async function StatsPage() {
       <div className={styles.formCard} style={{ marginTop: "24px" }}>
         <h2>Übersicht</h2>
         <ul className={styles.detailList}>
-          <li><strong>Gesehen, nicht abgeschlossen</strong><span>{inProgress}</span></li>
+          <li><strong>In Bearbeitung</strong><span>{inProgress}</span></li>
           <li><strong>Bewertete Einträge</strong><span>{ratedEntries.length}</span></li>
         </ul>
       </div>

@@ -2,6 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { StarRatingInput } from "@/components/StarRatingInput";
+import { PlatformBadge } from "@/components/PlatformBadge";
+import { isValidPlaytimeHours, playtimeHoursToMinutes } from "@/lib/playtime";
+import { isPlatformAllowed, platformOptionsByType, type MediaType } from "@/lib/platforms";
 import styles from "@/app/page.module.css";
 
 type EntryFormValues = {
@@ -15,8 +19,6 @@ type EntryFormValues = {
   watchedAt: string;
   platform: string;
   playtimeMinutes: string;
-  season: string;
-  episode: string;
 };
 
 type EntryFormProps = {
@@ -36,8 +38,6 @@ const emptyValues: EntryFormValues = {
   watchedAt: "",
   platform: "",
   playtimeMinutes: "",
-  season: "",
-  episode: "",
 };
 
 export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
@@ -49,6 +49,16 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
     () => ({ ...emptyValues, ...initialValues }),
     [initialValues],
   );
+  const [selectedType, setSelectedType] = useState(values.type);
+  const [rating, setRating] = useState(values.rating);
+  const [selectedStatus, setSelectedStatus] = useState(
+    values.type === "MOVIE" && values.status === "WATCHING"
+      ? "COMPLETED"
+      : values.type === "GAME" && values.status === "WATCHING"
+        ? "PLANNED"
+        : values.status,
+  );
+  const [selectedPlatform, setSelectedPlatform] = useState(values.platform);
 
   const validate = (payload: EntryFormValues) => {
     const nextErrors: Record<string, string> = {};
@@ -65,20 +75,12 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       nextErrors.status = "Bitte einen gültigen Status wählen.";
     }
 
-    if (payload.rating && (Number(payload.rating) < 1 || Number(payload.rating) > 10)) {
-      nextErrors.rating = "Bewertung muss zwischen 1 und 10 liegen.";
+    if (payload.rating && (Number(payload.rating) < 1 || Number(payload.rating) > 5)) {
+      nextErrors.rating = "Bewertung muss zwischen 1 und 5 Sternen liegen.";
     }
 
-    if (payload.playtimeMinutes && Number(payload.playtimeMinutes) < 0) {
-      nextErrors.playtimeMinutes = "Die Spielzeit kann nicht negativ sein.";
-    }
-
-    if (payload.season && Number(payload.season) < 1) {
-      nextErrors.season = "Staffel muss mindestens 1 sein.";
-    }
-
-    if (payload.episode && Number(payload.episode) < 1) {
-      nextErrors.episode = "Folge muss mindestens 1 sein.";
+    if (!isValidPlaytimeHours(payload.playtimeMinutes)) {
+      nextErrors.playtimeMinutes = "Bitte die Spielzeit in Stunden eingeben, zum Beispiel 2,5.";
     }
 
     return nextErrors;
@@ -98,8 +100,6 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       watchedAt: String(formData.get("watchedAt") ?? ""),
       platform: String(formData.get("platform") ?? ""),
       playtimeMinutes: String(formData.get("playtimeMinutes") ?? ""),
-      season: String(formData.get("season") ?? ""),
-      episode: String(formData.get("episode") ?? ""),
     };
 
     const nextErrors = validate(payload);
@@ -109,6 +109,11 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       return;
     }
 
+    const payloadWithMinutes = {
+      ...payload,
+      playtimeMinutes: playtimeHoursToMinutes(payload.playtimeMinutes)?.toString() ?? "",
+    };
+
     setIsSubmitting(true);
 
     const response = await fetch(mode === "edit" && entryId ? `/api/entries/${entryId}` : "/api/entries", {
@@ -116,7 +121,7 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payloadWithMinutes),
     });
 
     const result = await response.json().catch(() => ({}));
@@ -152,7 +157,31 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
 
       <div className={styles.fieldGroup}>
         <label htmlFor="type">Typ</label>
-        <select id="type" name="type" defaultValue={values.type} aria-invalid={Boolean(errors.type)}>
+        <select
+          id="type"
+          name="type"
+          value={selectedType}
+          onChange={(event) => {
+            const nextType = event.target.value;
+            setSelectedType(nextType);
+            setSelectedPlatform((currentPlatform) =>
+              isPlatformAllowed(nextType, currentPlatform) ? currentPlatform : "",
+            );
+            setSelectedStatus((currentStatus) => {
+              if (nextType === "SERIES" && selectedType !== "SERIES") {
+                return "PLANNED";
+              }
+              if (nextType === "MOVIE" && currentStatus === "WATCHING") {
+                return "COMPLETED";
+              }
+              if (nextType === "GAME" && currentStatus === "WATCHING") {
+                return "PLANNED";
+              }
+              return currentStatus;
+            });
+          }}
+          aria-invalid={Boolean(errors.type)}
+        >
           <option value="MOVIE">Film</option>
           <option value="SERIES">Serie</option>
           <option value="GAME">Spiel</option>
@@ -161,26 +190,41 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       </div>
 
       <div className={styles.fieldGroup}>
-        <label htmlFor="status">Status</label>
-        <select id="status" name="status" defaultValue={values.status} aria-invalid={Boolean(errors.status)}>
-          <option value="PLANNED">Geplant</option>
-          <option value="WATCHING">Gesehen, nicht abgeschlossen</option>
-          <option value="COMPLETED">Abgeschlossen</option>
-          <option value="ABANDONED">Abgebrochen</option>
-        </select>
-        {errors.status ? <span className={styles.errorText}>{errors.status}</span> : null}
+        {selectedType === "SERIES" ? (
+          <>
+            <label>Status</label>
+            <span>Wird automatisch aus den abgehakten Folgen berechnet.</span>
+            <input type="hidden" name="status" value={selectedStatus} />
+          </>
+        ) : (
+          <>
+            <label htmlFor="status">Status</label>
+            <select
+              id="status"
+              name="status"
+              value={selectedStatus}
+              onChange={(event) => setSelectedStatus(event.target.value)}
+              aria-invalid={Boolean(errors.status)}
+            >
+              <option value="PLANNED">Geplant</option>
+              <option value="COMPLETED">{selectedType === "MOVIE" ? "Gesehen" : "Abgeschlossen"}</option>
+              <option value="ABANDONED">Abgebrochen</option>
+            </select>
+            {errors.status ? <span className={styles.errorText}>{errors.status}</span> : null}
+          </>
+        )}
       </div>
 
       <div className={styles.fieldGroup}>
-        <label htmlFor="rating">Bewertung (1-10)</label>
-        <input
-          id="rating"
+        <StarRatingInput
+          idPrefix="entry-rating"
           name="rating"
-          type="number"
-          min="1"
-          max="10"
-          defaultValue={values.rating}
-          aria-invalid={Boolean(errors.rating)}
+          legend="Bewertung"
+          value={rating}
+          onChange={(nextRating) => {
+            setRating(nextRating);
+            setErrors((current) => ({ ...current, rating: "" }));
+          }}
         />
         {errors.rating ? <span className={styles.errorText}>{errors.rating}</span> : null}
       </div>
@@ -192,63 +236,43 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
 
       <div className={styles.fieldGroup}>
         <label htmlFor="platform">Plattform</label>
-        <select id="platform" name="platform" defaultValue={values.platform || ""}>
-          <option value="">Keine Plattform</option>
-          <option value="Netflix">Netflix</option>
-          <option value="Prime Video">Prime Video</option>
-          <option value="Disney+">Disney+</option>
-          <option value="Apple TV+">Apple TV+</option>
-          <option value="Sky">Sky</option>
-          <option value="Max">Max</option>
-          <option value="YouTube">YouTube</option>
-          <option value="Steam">Steam</option>
-          <option value="PlayStation">PlayStation</option>
-          <option value="Xbox">Xbox</option>
-          <option value="Nintendo Switch">Nintendo Switch</option>
-          <option value="Kino">Kino</option>
-          <option value="TV">TV</option>
-          <option value="Sonstiges">Sonstiges</option>
-        </select>
+        <div className={styles.platformSelectWrap}>
+          <select
+            id="platform"
+            name="platform"
+            value={selectedPlatform}
+            onChange={(event) => setSelectedPlatform(event.target.value)}
+          >
+            <option value="">Keine Plattform</option>
+            {selectedPlatform && !isPlatformAllowed(selectedType, selectedPlatform) ? (
+              <option value={selectedPlatform}>Bisherige Angabe: {selectedPlatform}</option>
+            ) : null}
+            {platformOptionsByType[selectedType as MediaType].map((platform) => (
+              <option value={platform} key={platform}>{platform}</option>
+            ))}
+          </select>
+          {selectedPlatform && isPlatformAllowed(selectedType, selectedPlatform) ? (
+            <PlatformBadge platform={selectedPlatform} />
+          ) : null}
+        </div>
       </div>
 
-      <div className={styles.fieldGroup}>
-        <label htmlFor="playtimeMinutes">Spielzeit (Minuten)</label>
-        <input
-          id="playtimeMinutes"
-          name="playtimeMinutes"
-          type="number"
-          min="0"
-          defaultValue={values.playtimeMinutes}
-          aria-invalid={Boolean(errors.playtimeMinutes)}
-        />
-        {errors.playtimeMinutes ? <span className={styles.errorText}>{errors.playtimeMinutes}</span> : null}
-      </div>
-
-      <div className={styles.fieldGroup}>
-        <label htmlFor="season">Staffel</label>
-        <input
-          id="season"
-          name="season"
-          type="number"
-          min="1"
-          defaultValue={values.season}
-          aria-invalid={Boolean(errors.season)}
-        />
-        {errors.season ? <span className={styles.errorText}>{errors.season}</span> : null}
-      </div>
-
-      <div className={styles.fieldGroup}>
-        <label htmlFor="episode">Folge</label>
-        <input
-          id="episode"
-          name="episode"
-          type="number"
-          min="1"
-          defaultValue={values.episode}
-          aria-invalid={Boolean(errors.episode)}
-        />
-        {errors.episode ? <span className={styles.errorText}>{errors.episode}</span> : null}
-      </div>
+      {selectedType === "GAME" ? (
+        <div className={styles.fieldGroup}>
+          <label htmlFor="playtimeMinutes">Spielzeit (Stunden)</label>
+          <input
+            id="playtimeMinutes"
+            name="playtimeMinutes"
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]+([,.][0-9]{1,2})?"
+            defaultValue={values.playtimeMinutes}
+            placeholder="z. B. 2,5"
+            aria-invalid={Boolean(errors.playtimeMinutes)}
+          />
+          {errors.playtimeMinutes ? <span className={styles.errorText}>{errors.playtimeMinutes}</span> : null}
+        </div>
+      ) : null}
 
       <div className={`${styles.fieldGroup} ${styles.fullWidth}`}>
         <label htmlFor="coverUrl">Cover-URL</label>
