@@ -2,6 +2,11 @@
 
 Eine Basis für eine Medien-Tracking-App mit Fokus auf MVP und einfacher Weiterentwicklung.
 
+## Lizenz
+
+Der Code dieses Projekts steht unter der MIT-Lizenz. Details stehen in der Datei [LICENSE](./LICENSE).
+Für Inhalte und Daten externer Anbieter wie TMDB und OMDb gelten deren jeweilige Nutzungsbedingungen.
+
 ## MVP-Funktionen
 
 - Drei Medientypen: Serien, Filme, Spiele
