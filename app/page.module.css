@@ -640,7 +640,9 @@
 
 .entryHeader {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
+  min-height: 2.25rem;
   gap: 12px;
 }
 
@@ -668,8 +670,14 @@
 }
 
 .entryCard h3 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 2.4em;
   margin: 0;
   font-size: 1.3rem;
+  line-height: 1.2;
 }
 
 .meta,
@@ -681,6 +689,12 @@
   line-height: 1.5;
 }
 
+.entryCard .meta {
+  display: flex;
+  align-items: center;
+  min-height: 1.5rem;
+}
+
 .notes {
   min-height: 3.2em;
 }
@@ -690,6 +704,34 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+
+.entryDates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #f0f2f5;
+}
+
+.entryDates > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.entryDates span {
+  color: #667085;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+
+.entryDates strong {
+  color: #344054;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .entryFooter {

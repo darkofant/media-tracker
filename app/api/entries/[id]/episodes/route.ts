@@ -4,6 +4,7 @@ import { z } from "zod";
 import { fetchOmdbSeasonRatings } from "@/lib/omdb";
 import { fetchTmdbSeriesEpisodes, fetchTmdbSeriesImdbId } from "@/lib/tmdb";
 import { prisma } from "@/lib/prisma";
+import { todayDate } from "@/lib/dates";
 
 const episodeUpdateSchema = z.object({
   episodeKey: z.string().regex(/^S[1-9]\d*E[1-9]\d*$/),
@@ -67,9 +68,15 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const status = getProgressStatus(episodes.length, watchedEpisodeKeys, entry.status);
   const needsSync = status !== entry.status || watchedEpisodeKeys.length !== storedKeys.length;
   if (needsSync) {
+    const completedAt =
+      status === "COMPLETED"
+        ? entry.status === "COMPLETED"
+          ? entry.completedAt
+          : todayDate()
+        : null;
     await prisma.mediaEntry.update({
       where: { id },
-      data: { status, watchedEpisodeKeys: JSON.stringify(watchedEpisodeKeys) },
+      data: { status, watchedEpisodeKeys: JSON.stringify(watchedEpisodeKeys), completedAt },
     });
   }
 
@@ -156,15 +163,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const watchedEpisodeKeys = [...watchedKeys];
   const status = getProgressStatus(episodes.length, watchedEpisodeKeys, "PLANNED");
+  const completedAt =
+    status === "COMPLETED"
+      ? entry.status === "COMPLETED"
+        ? entry.completedAt
+        : todayDate()
+      : null;
 
   const updatedEntry = await prisma.mediaEntry.update({
     where: { id },
-    data: { watchedEpisodeKeys: JSON.stringify(watchedEpisodeKeys), status },
+    data: { watchedEpisodeKeys: JSON.stringify(watchedEpisodeKeys), status, completedAt },
   });
 
   return NextResponse.json({
     watchedEpisodeKeys,
     status: updatedEntry.status,
     totalEpisodes: episodes.length,
+    completedAt: updatedEntry.completedAt,
   });
 }

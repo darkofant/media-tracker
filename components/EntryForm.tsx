@@ -16,7 +16,8 @@ type EntryFormValues = {
   description: string;
   notes: string;
   coverUrl: string;
-  watchedAt: string;
+  releaseDate: string;
+  completedAt: string;
   platform: string;
   playtimeMinutes: string;
 };
@@ -35,7 +36,8 @@ const emptyValues: EntryFormValues = {
   description: "",
   notes: "",
   coverUrl: "",
-  watchedAt: "",
+  releaseDate: "",
+  completedAt: "",
   platform: "",
   playtimeMinutes: "",
 };
@@ -97,7 +99,8 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       description: String(formData.get("description") ?? ""),
       notes: String(formData.get("notes") ?? ""),
       coverUrl: String(formData.get("coverUrl") ?? ""),
-      watchedAt: String(formData.get("watchedAt") ?? ""),
+      releaseDate: String(formData.get("releaseDate") ?? ""),
+      completedAt: String(formData.get("completedAt") ?? ""),
       platform: String(formData.get("platform") ?? ""),
       playtimeMinutes: String(formData.get("playtimeMinutes") ?? ""),
     };
@@ -230,8 +233,20 @@ export function EntryForm({ mode, entryId, initialValues }: EntryFormProps) {
       </div>
 
       <div className={styles.fieldGroup}>
-        <label htmlFor="watchedAt">Datum</label>
-        <input id="watchedAt" name="watchedAt" type="date" defaultValue={values.watchedAt} />
+        <label htmlFor="releaseDate">Veröffentlichungsdatum</label>
+        <input id="releaseDate" name="releaseDate" type="date" defaultValue={values.releaseDate} />
+      </div>
+
+      <div className={styles.fieldGroup}>
+        <label htmlFor="completedAt">Abgeschlossen am</label>
+        <input
+          id="completedAt"
+          name="completedAt"
+          type="date"
+          defaultValue={values.completedAt}
+          disabled={selectedStatus !== "COMPLETED"}
+        />
+        <span>Wird beim Abschließen automatisch auf heute gesetzt; du kannst das Datum ändern.</span>
       </div>
 
       <div className={styles.fieldGroup}>

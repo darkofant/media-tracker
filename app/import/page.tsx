@@ -101,7 +101,7 @@ export default function ImportPage() {
                 {result.description || "Keine Beschreibung verfügbar."}
               </p>
               <div className={styles.entryFooter}>
-                <span>{result.releaseDate || "Datum unbekannt"}</span>
+                <span>{result.releaseDate ? `Veröffentlichung ${result.releaseDate}` : "Veröffentlichungsdatum unbekannt"}</span>
                 <button
                   type="button"
                   className={styles.secondaryButton}
@@ -120,7 +120,7 @@ export default function ImportPage() {
                         description: result.description,
                         notes: "",
                         coverUrl: result.coverUrl ?? "",
-                        watchedAt: result.releaseDate ?? null,
+                        releaseDate: result.releaseDate ?? null,
                       }),
                     });
 

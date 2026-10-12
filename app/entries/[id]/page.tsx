@@ -7,6 +7,7 @@ import { ImdbRating } from "@/components/ImdbRating";
 import { RatingStars } from "@/components/RatingStars";
 import { PlatformBadge } from "@/components/PlatformBadge";
 import { SeriesEpisodeTracker } from "@/components/SeriesEpisodeTracker";
+import { formatDateDisplay } from "@/lib/dates";
 import { formatPlaytimeHours } from "@/lib/playtime";
 import { prisma } from "@/lib/prisma";
 import styles from "@/app/page.module.css";
@@ -108,8 +109,12 @@ export default async function EntryDetailPage({ params }: { params: Promise<{ id
             </li>
           ) : null}
           <li>
-            <strong>Datum</strong>
-            <span>{entry.watchedAt ? new Date(entry.watchedAt).toLocaleDateString("de-DE") : "Noch kein Datum"}</span>
+            <strong>Veröffentlichung</strong>
+            <span>{formatDateDisplay(entry.releaseDate)}</span>
+          </li>
+          <li>
+            <strong>Abgeschlossen am</strong>
+            <span>{formatDateDisplay(entry.completedAt)}</span>
           </li>
           <li>
             <strong>Plattform</strong>

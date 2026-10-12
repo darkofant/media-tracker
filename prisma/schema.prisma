@@ -17,6 +17,8 @@ model MediaEntry {
   notes              String?
   coverUrl           String?
   watchedAt          DateTime?
+  releaseDate        DateTime?
+  completedAt        DateTime?
   platform           String?
   playtimeMinutes    Int?
   season             Int?

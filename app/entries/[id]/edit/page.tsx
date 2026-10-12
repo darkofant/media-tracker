@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { EntryForm } from "@/components/EntryForm";
+import { formatDateInput } from "@/lib/dates";
 import { formatPlaytimeHours } from "@/lib/playtime";
 import { prisma } from "@/lib/prisma";
 import styles from "@/app/page.module.css";
@@ -35,7 +36,8 @@ export default async function EditEntryPage({ params }: { params: Promise<{ id: 
             description: entry.description ?? "",
             notes: entry.notes ?? "",
             coverUrl: entry.coverUrl ?? "",
-            watchedAt: entry.watchedAt ? new Date(entry.watchedAt).toISOString().slice(0, 10) : "",
+            releaseDate: formatDateInput(entry.releaseDate),
+            completedAt: formatDateInput(entry.completedAt),
             platform: entry.platform ?? "",
             playtimeMinutes: entry.playtimeMinutes !== null ? formatPlaytimeHours(entry.playtimeMinutes) : "",
           }}

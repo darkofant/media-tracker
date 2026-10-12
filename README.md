@@ -14,7 +14,7 @@ Für Inhalte und Daten externer Anbieter wie TMDB und OMDb gelten deren jeweilig
 - Filme gelten nach dem Markieren als gesehen als abgeschlossen
 - Serienfortschritt wird über einzelne TMDB-Folgen erfasst und bei vollständigem Fortschritt automatisch abgeschlossen
 - Bewertung und Notiz: 1–5 Sterne plus Freitext
-- Datum: wann gesehen oder gespielt
+- Veröffentlichungsdatum sowie Datum des Abschlusses (beim Abschließen automatisch gesetzt und bearbeitbar)
 - Serien: Staffeln und Folgen aus TMDB mit einzelnem Fortschritt
 - Filme und Serien: Streaminganbieter oder Kino; Spiele: Steam, PlayStation, Xbox oder Nintendo Switch
 - Spiele: Plattform und optionale Spielzeit in Stunden (Dezimalkomma)

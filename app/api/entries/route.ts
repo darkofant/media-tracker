@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { isPlatformAllowed } from "@/lib/platforms";
+import { parseDateInput, todayDate } from "@/lib/dates";
 
 const mediaTypeSchema = z.enum(["MOVIE", "SERIES", "GAME"]);
 const mediaStatusSchema = z.enum(["PLANNED", "WATCHING", "COMPLETED", "ABANDONED"]);
@@ -19,6 +20,16 @@ const optionalPositiveNumberSchema = z
   .union([z.coerce.number().int().min(1), z.literal(""), z.null()])
   .optional();
 
+const optionalDateSchema = z
+  .union([
+    z.string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .refine((value) => parseDateInput(value) !== null, "Bitte ein gültiges Datum eingeben."),
+    z.literal(""),
+    z.null(),
+  ])
+  .optional();
+
 const entrySchema = z.object({
   title: z.string().trim().min(1, "Titel ist erforderlich."),
   type: mediaTypeSchema,
@@ -27,6 +38,8 @@ const entrySchema = z.object({
   description: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   coverUrl: z.string().optional().nullable(),
+  releaseDate: optionalDateSchema,
+  completedAt: optionalDateSchema,
   watchedAt: z.string().optional().nullable(),
   platform: z.string().optional().nullable(),
   playtimeMinutes: optionalNumberSchema,
@@ -95,7 +108,14 @@ export async function POST(request: Request) {
       playtimeMinutes: toNullableInt(parsed.data.playtimeMinutes),
       season: toNullableInt(parsed.data.season),
       episode: toNullableInt(parsed.data.episode),
-      watchedAt: parsed.data.watchedAt ? new Date(parsed.data.watchedAt) : null,
+      releaseDate: parseDateInput(parsed.data.releaseDate ?? parsed.data.watchedAt),
+      completedAt:
+        parsed.data.type === "MOVIE" && parsed.data.status === "WATCHING"
+          ? (parsed.data.completedAt ? parseDateInput(parsed.data.completedAt) : todayDate())
+          : parsed.data.status === "COMPLETED"
+            ? (parsed.data.completedAt ? parseDateInput(parsed.data.completedAt) : todayDate())
+            : null,
+      watchedAt: null,
     },
   });
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { isPlatformAllowed } from "@/lib/platforms";
+import { parseDateInput, todayDate } from "@/lib/dates";
 
 const optionalRatingSchema = z
   .union([z.coerce.number().int().min(1).max(5), z.literal(""), z.null()])
@@ -17,6 +18,15 @@ const optionalPositiveNumberSchema = z
   .optional();
 
 const optionalTmdbIdSchema = z.number().int().positive().nullable().optional();
+const optionalDateSchema = z
+  .union([
+    z.string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .refine((value) => parseDateInput(value) !== null, "Bitte ein gültiges Datum eingeben."),
+    z.literal(""),
+    z.null(),
+  ])
+  .optional();
 
 const entrySchema = z.object({
   title: z.string().trim().min(1, "Titel ist erforderlich."),
@@ -26,6 +36,8 @@ const entrySchema = z.object({
   description: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   coverUrl: z.string().optional().nullable(),
+  releaseDate: optionalDateSchema,
+  completedAt: optionalDateSchema,
   watchedAt: z.string().optional().nullable(),
   platform: z.string().optional().nullable(),
   playtimeMinutes: optionalNumberSchema,
@@ -109,6 +121,20 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       : parsed.data.type === "MOVIE" && parsed.data.status === "WATCHING"
         ? "COMPLETED"
         : parsed.data.status;
+  let completedAt: Date | null = null;
+  if (status === "COMPLETED") {
+    if (parsed.data.completedAt) {
+      completedAt = parseDateInput(parsed.data.completedAt);
+    } else if (parsed.data.completedAt !== undefined) {
+      completedAt = currentEntry.status === "COMPLETED" ? null : todayDate();
+    } else {
+      completedAt = currentEntry.status === "COMPLETED" ? currentEntry.completedAt : todayDate();
+    }
+  }
+  const releaseDate =
+    parsed.data.releaseDate !== undefined || parsed.data.watchedAt !== undefined
+      ? parseDateInput(parsed.data.releaseDate ?? parsed.data.watchedAt)
+      : currentEntry.releaseDate;
 
   const updatedEntry = await prisma.mediaEntry.update({
     where: { id },
@@ -119,7 +145,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       playtimeMinutes: toNullableInt(parsed.data.playtimeMinutes),
       season: toNullableInt(parsed.data.season),
       episode: toNullableInt(parsed.data.episode),
-      watchedAt: parsed.data.watchedAt ? new Date(parsed.data.watchedAt) : null,
+      releaseDate,
+      completedAt,
+      watchedAt: null,
       ...(!preservesTmdbLink && { tmdbId: null, watchedEpisodeKeys: "[]" }),
     },
   });
@@ -170,6 +198,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     currentEntry.type === "SERIES" &&
     parsed.data.tmdbId !== undefined &&
     parsed.data.tmdbId !== currentEntry.tmdbId;
+  const nextStatus =
+    parsed.data.status === undefined
+      ? currentEntry.status
+      : currentEntry.type === "MOVIE" && parsed.data.status === "WATCHING"
+        ? "COMPLETED"
+        : parsed.data.status;
+  const completionStatusAfterUpdate = isRelinkingSeries ? "PLANNED" : nextStatus;
+  const completedAt =
+    completionStatusAfterUpdate !== "COMPLETED"
+      ? null
+      : currentEntry.status === "COMPLETED"
+        ? currentEntry.completedAt
+        : todayDate();
 
   const entry = await prisma.mediaEntry.update({
     where: { id },
@@ -179,6 +220,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       }),
       ...(parsed.data.tmdbId !== undefined && { tmdbId: parsed.data.tmdbId }),
       ...(isRelinkingSeries && { status: "PLANNED", watchedEpisodeKeys: "[]" }),
+      ...(parsed.data.status !== undefined || isRelinkingSeries ? { completedAt } : {}),
       ...(Object.hasOwn(parsed.data, "rating") && { rating: toNullableInt(parsed.data.rating) }),
       ...(Object.hasOwn(parsed.data, "playtimeMinutes") && {
         playtimeMinutes: toNullableInt(parsed.data.playtimeMinutes),

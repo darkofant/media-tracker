@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ImdbRating } from "@/components/ImdbRating";
 import { RatingStars } from "@/components/RatingStars";
 import { PlatformBadge } from "@/components/PlatformBadge";
+import { formatDateDisplay } from "@/lib/dates";
 import { formatPlaytimeHours } from "@/lib/playtime";
 import { prisma } from "@/lib/prisma";
 import styles from "./page.module.css";
@@ -247,14 +248,22 @@ export default async function Home({
                   {entry.description || entry.notes || "Keine Beschreibung oder Notiz hinterlegt."}
                 </p>
 
+                <div className={styles.entryDates}>
+                  <div>
+                    <span>Veröffentlicht</span>
+                    <strong>{entry.releaseDate ? formatDateDisplay(entry.releaseDate) : "–"}</strong>
+                  </div>
+                  <div>
+                    <span>Abgeschlossen</span>
+                    <strong>{entry.completedAt ? formatDateDisplay(entry.completedAt) : "–"}</strong>
+                  </div>
+                </div>
+
                 <div className={styles.entryFooter}>
                   <span className={styles.cardRatingGroup}>
                     <RatingStars rating={entry.rating} />
-                    {entry.type === "MOVIE" ? <ImdbRating entryId={entry.id} /> : null}
                   </span>
-                  <span>
-                    {entry.watchedAt ? new Date(entry.watchedAt).toLocaleDateString("de-DE") : "Datum offen"}
-                  </span>
+                  {entry.type === "MOVIE" ? <ImdbRating entryId={entry.id} /> : null}
                 </div>
               </article>
             </Link>
